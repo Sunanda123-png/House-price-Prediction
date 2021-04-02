@@ -1,0 +1,406 @@
+Price prediction
+import pandas as pd
+ housing = pd.read_csv("data.csv")
+housing.head() #5 columns are printed
+CRIM	ZN	INDUS	CHAS	NOX	RM	AGE	DIS	RAD	TAX	PTRATIO	B	LSTAT	MEDV
+0	0.00632	18.0	2.31	0	0.538	6.575	65.2	4.0900	1	296	15.3	396.90	4.98	24.0
+1	0.02731	0.0	7.07	0	0.469	6.421	78.9	4.9671	2	242	17.8	396.90	9.14	21.6
+2	0.02729	0.0	7.07	0	0.469	7.185	61.1	4.9671	2	242	17.8	392.83	4.03	34.7
+3	0.03237	0.0	2.18	0	0.458	6.998	45.8	6.0622	3	222	18.7	394.63	2.94	33.4
+4	0.06905	0.0	2.18	0	0.458	7.147	54.2	6.0622	3	222	18.7	396.90	5.33	36.2
+print(housing) # To check whole dataset
+        CRIM    ZN  INDUS  CHAS    NOX     RM   AGE     DIS  RAD  TAX  \
+0    0.00632  18.0   2.31     0  0.538  6.575  65.2  4.0900    1  296   
+1    0.02731   0.0   7.07     0  0.469  6.421  78.9  4.9671    2  242   
+2    0.02729   0.0   7.07     0  0.469  7.185  61.1  4.9671    2  242   
+3    0.03237   0.0   2.18     0  0.458  6.998  45.8  6.0622    3  222   
+4    0.06905   0.0   2.18     0  0.458  7.147  54.2  6.0622    3  222   
+..       ...   ...    ...   ...    ...    ...   ...     ...  ...  ...   
+501  0.06263   0.0  11.93     0  0.573  6.593  69.1  2.4786    1  273   
+502  0.04527   0.0  11.93     0  0.573  6.120  76.7  2.2875    1  273   
+503  0.06076   0.0  11.93     0  0.573  6.976  91.0  2.1675    1  273   
+504  0.10959   0.0  11.93     0  0.573  6.794  89.3  2.3889    1  273   
+505  0.04741   0.0  11.93     0  0.573  6.030  80.8  2.5050    1  273   
+
+     PTRATIO       B  LSTAT  MEDV  
+0       15.3  396.90   4.98  24.0  
+1       17.8  396.90   9.14  21.6  
+2       17.8  392.83   4.03  34.7  
+3       18.7  394.63   2.94  33.4  
+4       18.7  396.90   5.33  36.2  
+..       ...     ...    ...   ...  
+501     21.0  391.99   9.67  22.4  
+502     21.0  396.90   9.08  20.6  
+503     21.0  396.90   5.64  23.9  
+504     21.0  393.45   6.48  22.0  
+505     21.0  396.90   7.88  11.9  
+
+[506 rows x 14 columns]
+housing.info #To check null value
+<bound method DataFrame.info of         CRIM    ZN  INDUS  CHAS    NOX     RM   AGE     DIS  RAD  TAX  \
+0    0.00632  18.0   2.31     0  0.538  6.575  65.2  4.0900    1  296   
+1    0.02731   0.0   7.07     0  0.469  6.421  78.9  4.9671    2  242   
+2    0.02729   0.0   7.07     0  0.469  7.185  61.1  4.9671    2  242   
+3    0.03237   0.0   2.18     0  0.458  6.998  45.8  6.0622    3  222   
+4    0.06905   0.0   2.18     0  0.458  7.147  54.2  6.0622    3  222   
+..       ...   ...    ...   ...    ...    ...   ...     ...  ...  ...   
+501  0.06263   0.0  11.93     0  0.573  6.593  69.1  2.4786    1  273   
+502  0.04527   0.0  11.93     0  0.573  6.120  76.7  2.2875    1  273   
+503  0.06076   0.0  11.93     0  0.573  6.976  91.0  2.1675    1  273   
+504  0.10959   0.0  11.93     0  0.573  6.794  89.3  2.3889    1  273   
+505  0.04741   0.0  11.93     0  0.573  6.030  80.8  2.5050    1  273   
+
+     PTRATIO       B  LSTAT  MEDV  
+0       15.3  396.90   4.98  24.0  
+1       17.8  396.90   9.14  21.6  
+2       17.8  392.83   4.03  34.7  
+3       18.7  394.63   2.94  33.4  
+4       18.7  396.90   5.33  36.2  
+..       ...     ...    ...   ...  
+501     21.0  391.99   9.67  22.4  
+502     21.0  396.90   9.08  20.6  
+503     21.0  396.90   5.64  23.9  
+504     21.0  393.45   6.48  22.0  
+505     21.0  396.90   7.88  11.9  
+
+[506 rows x 14 columns]>
+housing['CHAS'].value_counts()# to understand how many zero and one present any other attribute we can check as same
+0    471
+1     35
+Name: CHAS, dtype: int64
+housing.describe() #overall look
+CRIM	ZN	INDUS	CHAS	NOX	RM	AGE	DIS	RAD	TAX	PTRATIO	B	LSTAT	MEDV
+count	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000	506.000000
+mean	3.613524	11.363636	11.136779	0.069170	0.554695	6.283721	68.574901	3.795043	9.549407	408.237154	18.455534	356.674032	12.653063	22.532806
+std	8.601545	23.322453	6.860353	0.253994	0.115878	0.702474	28.148861	2.105710	8.707259	168.537116	2.164946	91.294864	7.141062	9.197104
+min	0.006320	0.000000	0.460000	0.000000	0.385000	3.561000	2.900000	1.129600	1.000000	187.000000	12.600000	0.320000	1.730000	5.000000
+25%	0.082045	0.000000	5.190000	0.000000	0.449000	5.885500	45.025000	2.100175	4.000000	279.000000	17.400000	375.377500	6.950000	17.025000
+50%	0.256510	0.000000	9.690000	0.000000	0.538000	6.205000	77.500000	3.207450	5.000000	330.000000	19.050000	391.440000	11.360000	21.200000
+75%	3.677082	12.500000	18.100000	0.000000	0.624000	6.618750	94.075000	5.188425	24.000000	666.000000	20.200000	396.225000	16.955000	25.000000
+max	88.976200	100.000000	27.740000	1.000000	0.871000	8.780000	100.000000	12.126500	24.000000	711.000000	22.000000	396.900000	37.970000	50.000000
+import matplotlib.pyplot as plt
+housing.hist(bins=50, figsize=(20,15)) # To show Graph
+array([[<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07737188>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07B98E48>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07E74AC8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07EADBC8>],
+       [<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07EE4D08>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07EFE988>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07F55E48>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07F8CF88>],
+       [<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07F97B48>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD07FCED08>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0803A308>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD080703C8>],
+       [<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD080A84C8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD080E25C8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0811B708>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD081528C8>]],
+      dtype=object)
+
+import numpy as np
+def split_train_test(data,test_ratio):
+    np.random.seed(42)
+    shuffled=np.random.permutation(len(data))
+    print(shuffled)
+    test_set_size=int(len(data)*test_ratio)
+    test_indices=shuffled[ :test_set_size]
+    train_indices=shuffled[test_set_size: ]
+    return data.iloc[train_indices], data.iloc[test_indices]
+train_set, test_set = split_train_test(housing,0.2)
+[173 274 491  72 452  76 316 140 471 500 218   9 414  78 323 473 124 388
+ 195 448 271 278  30 501 421 474  79 454 210 497 172 320 375 362 467 153
+   2 336 208  73 496 307 204  68  90 390  33  70 470   0  11 281  22 101
+ 268 485 442 290  84 245  63  55 229  18 351 209 395  82  39 456  46 481
+ 444 355  77 398 104 203 381 489  69 408 255 392 312 234 460 324  93 137
+ 176 417 131 346 365 132 371 412 436 411  86  75 477  15 332 423  19 325
+ 335  56 437 409 334 181 227 434 180  25 493 238 244 250 418 117  42 322
+ 347 182 155 280 126 329  31 113 148 432 338  57 194  24  17 298  66 211
+ 404  94 154 441  23 225 433 447   5 116  45  16 468 360   3 405 185  60
+ 110 321 265  29 262 478  26   7 492 108  37 157 472 118 114 175 192 272
+ 144 373 383 356 277 220 450 141 369  67 361 168 499 394 400 193 249 109
+ 420 145  92 152 222 304  83 248 165 163 199 231  74 311 455 253 119 284
+ 302 483 357 403 228 261 237 386 476  36 196 139 368 247 287 378  59 111
+  89 266   6 364 503 341 158 150 177 397 184 318  10 384 103  81  38 317
+ 167 475 299 296 198 377 146 396 147 428 289 123 490  96 143 239 275  97
+ 353 122 183 202 246 484 301 354 410 399 286 125 305 223 422 219 129 424
+ 291 331 380 480 358 297 294 370 438 112 179 310 342 333 487 457 233 314
+ 164 136 197 258 232 115 120 352 224 406 340 127 285 415 107 374 449 133
+ 367  44 495  65 283  85 242 186 425 159  12  35  28 170 142 402 349 221
+  95  51 240 376 382 178  41 440 391 206 282 254 416   4 256 453 100 226
+ 431 213 426 171  98 292 215  61  47  32 267 327 200 451  27 393 230 260
+ 288 162 429 138  62 135 128 482   8 326 469  64 300  14 156  40 379 465
+ 407 216 279 439 504 337 236 207 212 295 462 251 494 464 303 350 269 201
+ 161  43 217 401 190 309 259 105  53 389   1 446 488  49 419  80 205  34
+ 430 263 427 366  91 339 479  52 345 264 241  13 315  88 387 273 166 328
+ 498 134 306 486 319 243  54 363  50 461 174 445 189 502 463 187 169  58
+  48 344 235 252  21 313 459 160 276 443 191 385 293 413 343 257 308 149
+ 130 151 359  99 372  87 458 330 214 466 121 505  20 188  71 106 270 348
+ 435 102]
+print(f" Rows in train set):{len(train_set)}\n Rows in test set:{len(test_set)}\n")
+ Rows in train set):405
+ Rows in test set:101
+
+from sklearn.model_selection import train_test_split
+train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
+print(f" Rows in train set):{len(train_set)}\n Rows in test set:{len(test_set)}\n")
+ Rows in train set):404
+ Rows in test set:102
+
+from sklearn.model_selection import StratifiedShuffleSplit
+split=StratifiedShuffleSplit(n_splits=1,test_size=0.2,random_state=42)
+for train_index,test_index in split.split(housing, housing['CHAS']):
+    strat_train_set=housing.loc[train_index]
+    strat_test_set=housing.loc[test_index]
+strat_test_set.info()
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 102 entries, 342 to 218
+Data columns (total 14 columns):
+CRIM       102 non-null float64
+ZN         102 non-null float64
+INDUS      102 non-null float64
+CHAS       102 non-null int64
+NOX        102 non-null float64
+RM         102 non-null float64
+AGE        102 non-null float64
+DIS        102 non-null float64
+RAD        102 non-null int64
+TAX        102 non-null int64
+PTRATIO    102 non-null float64
+B          102 non-null float64
+LSTAT      102 non-null float64
+MEDV       102 non-null float64
+dtypes: float64(11), int64(3)
+memory usage: 12.0 KB
+strat_test_set['CHAS'].value_counts()
+0    95
+1     7
+Name: CHAS, dtype: int64
+95/7
+13.571428571428571
+strat_train_set['CHAS'].value_counts()
+0    376
+1     28
+Name: CHAS, dtype: int64
+376/28
+13.428571428571429
+housing= strat_train_set.copy()
+LOOKING FOR CORELATION
+corr_matrix=housing.corr()
+corr_matrix['MEDV'].sort_values(ascending=False)
+MEDV       1.000000
+RM         0.679061
+B          0.361761
+ZN         0.339741
+DIS        0.240451
+CHAS       0.205066
+AGE       -0.364596
+RAD       -0.374693
+CRIM      -0.393715
+NOX       -0.422873
+TAX       -0.456657
+INDUS     -0.473516
+PTRATIO   -0.493534
+LSTAT     -0.740494
+Name: MEDV, dtype: float64
+from pandas.plotting import scatter_matrix
+attributes=["MEDV","RM","ZN","LSTAT"]
+scatter_matrix(housing[attributes],figsize=(12,8))
+array([[<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B4713C8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B4662C8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B4E1848>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B5198C8>],
+       [<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B5509C8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B569648>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B5C2BC8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B5F9CC8>],
+       [<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B605888>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B63CA48>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B6A2FC8>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B6DE148>],
+       [<matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B717248>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B750308>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B788448>,
+        <matplotlib.axes._subplots.AxesSubplot object at 0x000001BD0B7C1588>]],
+      dtype=object)
+
+housing.plot(kind="scatter", x="RM", y="MEDV", alpha=0.8)
+<matplotlib.axes._subplots.AxesSubplot at 0x1bd0773b808>
+
+​
+Trying attribute combination
+housing["TAXRM"]=housing['TAX']/housing['RM']
+housing["TAXRM"]
+254     51.571709
+348     42.200452
+476    102.714374
+321     45.012547
+326     45.468948
+          ...    
+155     65.507152
+423    109.126659
+98      35.294118
+455    102.068966
+216     46.875000
+Name: TAXRM, Length: 404, dtype: float64
+housing.head()
+CRIM	ZN	INDUS	CHAS	NOX	RM	AGE	DIS	RAD	TAX	PTRATIO	B	LSTAT	MEDV	TAXRM
+254	0.04819	80.0	3.64	0	0.392	6.108	32.0	9.2203	1	315	16.4	392.89	6.57	21.9	51.571709
+348	0.01501	80.0	2.01	0	0.435	6.635	29.7	8.3440	4	280	17.0	390.94	5.99	24.5	42.200452
+476	4.87141	0.0	18.10	0	0.614	6.484	93.6	2.3053	24	666	20.2	396.21	18.68	16.7	102.714374
+321	0.18159	0.0	7.38	0	0.493	6.376	54.3	4.5404	5	287	19.6	396.90	6.87	23.1	45.012547
+326	0.30347	0.0	7.38	0	0.493	6.312	28.9	5.4159	5	287	19.6	396.90	6.15	23.0	45.468948
+corr_matrix=housing.corr()
+corr_matrix['MEDV'].sort_values(ascending=False)
+MEDV       1.000000
+RM         0.679061
+B          0.361761
+ZN         0.339741
+DIS        0.240451
+CHAS       0.205066
+AGE       -0.364596
+RAD       -0.374693
+CRIM      -0.393715
+NOX       -0.422873
+TAX       -0.456657
+INDUS     -0.473516
+PTRATIO   -0.493534
+TAXRM     -0.525106
+LSTAT     -0.740494
+Name: MEDV, dtype: float64
+housing.plot(kind="scatter", x="TAXRM", y="MEDV", alpha=0.8)
+<matplotlib.axes._subplots.AxesSubplot at 0x1bd0ba3c148>
+
+housing = strat_train_set.drop("MEDV",axis=1)
+housing_labels = strat_train_set["MEDV"].copy()
+Missing attributes
+
+a=housing.dropna(subset=["RM"])
+a.shape
+(404, 13)
+housing.drop("RM", axis=1).shape
+(404, 12)
+median=housing["RM"].median()
+housing["RM"].fillna(median)
+254    6.108
+348    6.635
+476    6.484
+321    6.376
+326    6.312
+       ...  
+155    6.152
+423    6.103
+98     7.820
+455    6.525
+216    5.888
+Name: RM, Length: 404, dtype: float64
+housing.shape
+(404, 13)
+from sklearn.impute import SimpleImputer
+imputer=SimpleImputer(strategy="median")
+imputer.fit(housing)
+SimpleImputer(add_indicator=False, copy=True, fill_value=None,
+              missing_values=nan, strategy='median', verbose=0)
+imputer.statistics_
+array([2.86735e-01, 0.00000e+00, 9.90000e+00, 0.00000e+00, 5.38000e-01,
+       6.20900e+00, 7.82000e+01, 3.12220e+00, 5.00000e+00, 3.37000e+02,
+       1.90000e+01, 3.90955e+02, 1.15700e+01])
+X=imputer.transform(housing)
+housing_tr=pd.DataFrame(X, columns=housing.columns)
+housing.describe()
+CRIM	ZN	INDUS	CHAS	NOX	RM	AGE	DIS	RAD	TAX	PTRATIO	B	LSTAT
+count	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000	404.000000
+mean	3.602814	10.836634	11.344950	0.069307	0.558064	6.278765	69.039851	3.746210	9.735149	412.341584	18.473267	353.392822	12.791609
+std	8.099383	22.150636	6.877817	0.254290	0.116875	0.712799	28.258248	2.099057	8.731259	168.672623	2.129243	96.069235	7.235740
+min	0.006320	0.000000	0.740000	0.000000	0.389000	3.561000	2.900000	1.129600	1.000000	187.000000	13.000000	0.320000	1.730000
+25%	0.086963	0.000000	5.190000	0.000000	0.453000	5.878750	44.850000	2.035975	4.000000	284.000000	17.400000	374.617500	6.847500
+50%	0.286735	0.000000	9.900000	0.000000	0.538000	6.209000	78.200000	3.122200	5.000000	337.000000	19.000000	390.955000	11.570000
+75%	3.731923	12.500000	18.100000	0.000000	0.631000	6.630250	94.100000	5.100400	24.000000	666.000000	20.200000	395.630000	17.102500
+max	73.534100	100.000000	27.740000	1.000000	0.871000	8.780000	100.000000	12.126500	24.000000	711.000000	22.000000	396.900000	36.980000
+Creating pipeline
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+my_pipeline=Pipeline([
+     ('imputer',SimpleImputer(strategy="median")),
+    ('std_scaler',StandardScaler()),
+])
+housing_num_tr=my_pipeline.fit_transform(housing)
+housing_num_tr
+array([[-0.43942006,  3.12628155, -1.12165014, ..., -0.97491834,
+         0.41164221, -0.86091034],
+       [-0.44352175,  3.12628155, -1.35893781, ..., -0.69277865,
+         0.39131918, -0.94116739],
+       [ 0.15682292, -0.4898311 ,  0.98336806, ...,  0.81196637,
+         0.44624347,  0.81480158],
+       ...,
+       [-0.43525657, -0.4898311 , -1.23083158, ..., -0.22254583,
+         0.41831233, -1.27603303],
+       [ 0.14210728, -0.4898311 ,  0.98336806, ...,  0.81196637,
+        -3.15239177,  0.73869575],
+       [-0.43974024, -0.4898311 ,  0.37049623, ..., -0.97491834,
+         0.41070422,  0.09940681]])
+Selecting model - Linear , Decision tree, Random Forest regressor
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+#model= LinearRegression()
+#model = DecisionTreeRegressor()
+model = RandomForestRegressor()
+model.fit(housing_num_tr,housing_labels)
+C:\Users\Sunanda\Anaconda3\lib\site-packages\sklearn\ensemble\forest.py:245: FutureWarning: The default value of n_estimators will change from 10 in version 0.20 to 100 in 0.22.
+  "10 in version 0.20 to 100 in 0.22.", FutureWarning)
+RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=None,
+                      max_features='auto', max_leaf_nodes=None,
+                      min_impurity_decrease=0.0, min_impurity_split=None,
+                      min_samples_leaf=1, min_samples_split=2,
+                      min_weight_fraction_leaf=0.0, n_estimators=10,
+                      n_jobs=None, oob_score=False, random_state=None,
+                      verbose=0, warm_start=False)
+some_data = housing.iloc[ :5]
+some_labels=housing_labels.iloc[ :5]
+prepared_data = my_pipeline.transform(some_data)
+model.predict(prepared_data)
+array([23.28, 25.4 , 15.63, 23.48, 23.94])
+list(some_labels)
+[21.9, 24.5, 16.7, 23.1, 23.0]
+Evaluating the model
+from sklearn.metrics import mean_squared_error
+housing_predictions=model.predict(housing_num_tr)
+mse = mean_squared_error(housing_labels, housing_predictions)
+rmse = np.sqrt(mse)
+rmse 
+1.376832352442618
+Using better evaluation technique- Cross Validation
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(model, housing_num_tr, housing_labels, scoring ="neg_mean_squared_error", cv=10)
+rmse_scores=np.sqrt(-scores)
+​
+rmse_scores
+array([2.98811018, 3.16324394, 4.42476346, 2.57561122, 3.37516296,
+       3.0882321 , 5.45740621, 3.33502811, 3.23827346, 3.88788439])
+def print_scores(scores):
+    print("Scores :", scores)
+    print("Mean :", scores.mean())
+    print("Standard Deviation :", scores.std())
+print_scores(rmse_scores)
+Scores : [2.98811018 3.16324394 4.42476346 2.57561122 3.37516296 3.0882321
+ 5.45740621 3.33502811 3.23827346 3.88788439]
+Mean : 3.5533716021562696
+Standard Deviation : 0.7949452548502305
+Saving the model
+from joblib import dump, load
+dump(model,'House.joblib')
+['House.joblib']
+Testing the model on the test data
+X_test = strat_test_set.drop("MEDV", axis=1)
+Y_test = strat_test_set["MEDV"].copy()
+X_test_prepared = my_pipeline.transform(X_test)
+final_predictions = model.predict(X_test_prepared)
+final_mse = mean_squared_error(Y_test, final_predictions)
+final_rmse = np.sqrt(final_mse)
+final_rmse
+3.1619114968204736
+prepared_data[0]
+array([-0.43942006,  3.12628155, -1.12165014, -0.27288841, -1.42262747,
+       -0.23986654, -1.31238772,  2.61111401, -1.0016859 , -0.5778192 ,
+       -0.97491834,  0.41164221, -0.86091034])
